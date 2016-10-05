@@ -5,8 +5,8 @@ function quit
   echo "$*" ; exit
 }
 
-function usage 
-{ 
+function usage
+{
   echo "Usage $0 -i -n -t -r [-x] [-z] [-h]"
   echo "-i virtual disk which should be restored"
   echo "-n name of the virtual machine"
@@ -31,26 +31,26 @@ do
   esac
 done
 
-if test ! -f ${vmHddFile} ; then 
+if test ! -f "${vmHddFile}" ; then
   quit "Error(-i): the file ${vmHddFile}  does not exsist"
 fi
 
-stateOfVm=`virsh domstate $nameOfVm`
-if test "${stateOfVm}" == "shut off" ; then 
+stateOfVm=$(virsh domstate "$nameOfVm")
+if test "${stateOfVm}" == "shut off" ; then
   echo "VM ${nameOfVm} is shut off"
 else
-  quit "Error(-n): The VM ${nameOfCm} is ${stateOfVm}, but they must be shut off"
+  quit "Error(-n): The VM ${nameOfVm} is ${stateOfVm}, but they must be shut off"
 fi
 
-if test -z ${backupHddForRecover} ; then 
+if test -z "${backupHddForRecover}" ; then
   quit "Error(-r): you must specify a file from the tar backup archive"
 fi
-    
-if test ! -f ${backupTar} ; then 
-  quit "Error(-t): the file ${backupTar} does not exsist"
-fi  
 
-if test -z "${encKey}" ; then 
+if test ! -f "${backupTar}" ; then
+  quit "Error(-t): the file ${backupTar} does not exsist"
+fi
+
+if test -z "${encKey}" ; then
   enableEncryption="false"
   else
   enableEncryption="true"
@@ -66,8 +66,9 @@ echo "$enableEncryption"
 if test "${enableEncryption}" == "true"
   then
   echo "encryption is on"
-  openssl enc -d -aes-256-cbc -salt -pass pass:${encKey} -in ${backupTar} | tar -x -v --use-compress-program=${compressProgram} -f - ${backupHddForRecover} -O | dd of=${vmHddFile}
+  openssl enc -d -aes-256-cbc -salt -pass "pass:${encKey}" -in "${backupTar}" | tar -x -v --use-compress-program="${compressProgram}" -f - "${backupHddForRecover}" -O | dd of="${vmHddFile}"
   else
   echo "encryption is off"
-  tar -x -v --use-compress-program=${compressProgram} -f ${backupTar} ${backupHddForRecover} -O | dd of=${vmHddFile}
+  tar -x -v --use-compress-program="${compressProgram}" -f "${backupTar}" "${backupHddForRecover}" -O | dd of="${vmHddFile}"
 fi
+
